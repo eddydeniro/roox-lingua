@@ -7,7 +7,7 @@ switch($app_module_action)
         redirect_to_ref($_GET['ref']);
     case 'cfg_switcher':
         $cfg_switcher = (int)$_POST['switcher'];
-        $Locale->languageSwitcher($cfg_switcher);
+        $Lingua->languageSwitcher($cfg_switcher);
         if($cfg_switcher)
         {
             ${ROOX_PLUGIN.'_active_tab'} = 'lingua';
@@ -15,8 +15,8 @@ switch($app_module_action)
         }
         exit();
     case 'clean_orphans':
-        $Locale->validateData();
-        echo $Locale->countOrphans();
+        $Lingua->validateData();
+        echo $Lingua->countOrphans();
         exit();
 }
 ?>

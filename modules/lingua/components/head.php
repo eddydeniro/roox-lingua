@@ -1,7 +1,7 @@
 <?php
 $loaded_module = $_GET['module'];
 $current_entity_id = 0;
-global ${ROOX_PLUGIN . '_locale_cache'}, $app_user;
+global ${ROOX_PLUGIN . '_language_cache'}, $app_user;
 $goReplace = $app_user['language'] == CFG_APP_LANGUAGE ? 0 : 1;
 if(in_array($loaded_module, ['items/items', 'items/info']))
 {
@@ -11,17 +11,17 @@ if(in_array($loaded_module, ['items/items', 'items/info']))
 }
 if($loaded_module=='reports/view')
 {
-    $current_entity_id = ${ROOX_PLUGIN . '_locale_cache'}['reports'][$_GET['reports_id']];
+    $current_entity_id = ${ROOX_PLUGIN . '_language_cache'}['reports'][$_GET['reports_id']];
 }
-$locale_data = json_encode(array_filter(${ROOX_PLUGIN . '_locale_cache'}, function($key){
-    return !in_array($key, ['locale', 'date_updated', 'token']);
+$language_data = json_encode(array_filter(${ROOX_PLUGIN . '_language_cache'}, function($key){
+    return !in_array($key, ['language', 'date_updated', 'token']);
 }, ARRAY_FILTER_USE_KEY));
 
 ?>
 <script>
 $(document).ready(function(){
     const _entity_id = <?php echo $current_entity_id ?>,
-        locale_data = <?php echo $locale_data ?>,
+        language_data = <?php echo $language_data ?>,
         go_replace = <?php echo  $goReplace ?>;
 
     const urlSearchParams = new URLSearchParams(window.location.search),
@@ -29,7 +29,7 @@ $(document).ready(function(){
 
     if(_entity_id && go_replace)
     {
-        const entities_data = locale_data['entities'];
+        const entities_data = language_data['entities'];
         const current_entity_data = entities_data[_entity_id];
 
         for (const entity_id in entities_data) {
@@ -44,8 +44,8 @@ $(document).ready(function(){
                 $('h3.page-title').text(entities_data[_entity_id]['listing_heading']['value']);
             }
             $('.entitly-listing-buttons-left > button').text(current_entity_data['insert_button']['value']);
-            const field_data = locale_data['fields'][_entity_id];
-            const tabs_data = locale_data['forms_tabs'][_entity_id];   
+            const field_data = language_data['fields'][_entity_id];
+            const tabs_data = language_data['forms_tabs'][_entity_id];   
             $('#ajax-modal').on('shown', function(){
                 $('h4.modal-title').text(entities_data[_entity_id]['window_heading']['value']);
                 for (const field_id in field_data){

@@ -172,7 +172,7 @@
     //EDO: Let's change the breadcrumb to lingua
     if(isset($app_breadcrumb) && count($app_breadcrumb))
     {
-      Roox\Lingua::localizeData($app_breadcrumb, ${ROOX_PLUGIN . '_locale_cache'}, 'listing_heading');
+      Roox\Lingua::localizeData($app_breadcrumb, ${ROOX_PLUGIN . '_language_cache'}, 'listing_heading');
     }
     $initial = true;
     if(in_array('modx', ${ROOX_PLUGIN . "_modules"}))

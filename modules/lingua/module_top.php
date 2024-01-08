@@ -7,5 +7,5 @@
   $module_version = '1.0';
   $module_url = 'https://github.com/eddydeniro/roox-lingua';
 
-  $Locale->setLocaleCache($app_session_token, true);
+  $Lingua->setLanguageCache($app_session_token, true);
 ?>

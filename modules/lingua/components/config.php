@@ -47,7 +47,7 @@
 <p>
 <?php
     echo TEXT_CLEAR_ORPHANS_INFO;
-    $orphanCount = $Locale->countOrphans();
+    $orphanCount = $Lingua->countOrphans();
 ?>
 </p>
 <p><?php echo TEXT_ORPHAN_DATA . ": <span id='orphan-count'>" . $orphanCount . "</span>"; ?></p>

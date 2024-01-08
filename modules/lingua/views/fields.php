@@ -7,7 +7,7 @@
 
 <?php
   $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
-  echo ($locked ? "" : form_tag('locale_fields_form', url_for("{$plugin_name}/{$module_name}/fields", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE) . input_hidden_tag('entities_id', $_GET['entities_id']));
+  echo ($locked ? "" : form_tag('language_fields_form', url_for("{$plugin_name}/{$module_name}/fields", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE) . input_hidden_tag('entities_id', $_GET['entities_id']));
 ?>
 
 <div class="table-scrollable">
@@ -39,7 +39,7 @@ $reserverd_fields_types_list = "'" . implode("','", $reserverd_fields_types). "'
 $fields_query = db_query("SELECT f.*, fr.sort_order AS form_rows_sort_order, RIGHT(f.forms_rows_position, 1) AS forms_rows_pos, t.name AS tab_name, IF(f.type IN (" . $reserverd_fields_types_list . "),-1,t.sort_order) AS tab_sort_order FROM app_fields f LEFT JOIN app_forms_rows fr ON fr.id=LEFT(f.forms_rows_position,LENGTH(f.forms_rows_position)-2), app_forms_tabs t WHERE f.type NOT IN ('fieldtype_action', 'fieldtype_id') AND f.entities_id='" . $_GET['entities_id'] . "' AND f.forms_tabs_id=t.id {$fields_sql_query} ORDER BY tab_sort_order, t.name, form_rows_sort_order, forms_rows_pos, f.sort_order, f.name");
 
 if(db_num_rows($fields_query)==0) echo '<tr><td colspan="4">' . TEXT_NO_RECORDS_FOUND. '</td></tr>'; 
-$current_fields_data = ${ROOX_PLUGIN . '_locale_cache'}['fields'][$_GET['entities_id']] ?? [];
+$current_fields_data = ${ROOX_PLUGIN . '_language_cache'}['fields'][$_GET['entities_id']] ?? [];
 while($v = db_fetch_array($fields_query)):
     $name = $current_fields_data[$v['id']]['name'] ?? $v['name'];
     $short_name = $current_fields_data[$v['id']]['short_name'] ?? $v['short_name'];

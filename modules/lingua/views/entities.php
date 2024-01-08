@@ -7,7 +7,7 @@
 <br>
 <?php
     $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
-    echo ($locked ? "" : form_tag('locale_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
+    echo ($locked ? "" : form_tag('language_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
 ?>
 <div class="table-scrollable">
 <div class="table-scrollable table-wrapper slimScroll" id="slimScroll">
@@ -40,7 +40,7 @@
                         <?php echo '<div class="tt" data-tt-id="entity_' . $v['id'] . '" ' . ($v['parent_id'] > 0 ? 'data-tt-parent="entity_' . $v['parent_id'] . '"' : '') . '></div>' ?>
                         <div class="input_adj">                        
                             <?php
-                                $current_entity_data = ${ROOX_PLUGIN . '_locale_cache'}['entities'][$v['id']];
+                                $current_entity_data = ${ROOX_PLUGIN . '_language_cache'}['entities'][$v['id']];
                                 $entity_name = $current_entity_data['name'];
                                 echo $locked ? "<div style='padding:8px 0;'>{$entity_name}</div>" : input_tag("entities[{$v['id']}][name]", $entity_name, array('class' => 'form-control input-medium transparent'));
                             ?>

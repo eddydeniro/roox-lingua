@@ -13,8 +13,8 @@ class Lingua
         'comments_window_heading'=>TEXT_COMMENT, 
         'comments_listing_heading'=>TEXT_COMMENT
     ];
-    public $lingua_id;
-    private $lingua_name,
+    public $language_id;
+    private $language_name,
         $lingua_table,
         $lingua_fields_table,
         $lingua_entities_table,
@@ -24,9 +24,9 @@ class Lingua
         $lingua_dictionary_table,
         $partner_tables;
 
-    function __construct($lingua_name)
+    function __construct($language_name)
     {
-        $this->lingua_name = $lingua_name;
+        $this->language_name = $language_name;
         $tmp = explode("\\", get_class());
         $currentClass = strtolower($tmp[count($tmp)-1]);
         global ${ROOX_PLUGIN . "_" . $currentClass . "_tables"};
@@ -44,7 +44,7 @@ class Lingua
             $this->lingua_forms_tabs_table=>['app_forms_tabs', 'forms_tabs_id'],            
         ];
 
-        $this->lingua_id = $this->getLocaleId($lingua_name);
+        $this->language_id = $this->getLanguageId($language_name);
     }
     
     function getEntitiesCfgScope()
@@ -117,7 +117,7 @@ class Lingua
         {
             if($values['name'])
             {
-                $lingua_entities_values[] = "('{$this->lingua_id}', '$entity_id', '{$values['name']}')";
+                $lingua_entities_values[] = "('{$this->language_id}', '$entity_id', '{$values['name']}')";
             }
             foreach ($values['cfg'] as $cfg_id => $cfg_value) 
             {
@@ -125,10 +125,10 @@ class Lingua
                 {
                     if(!is_numeric($cfg_id))
                     {
-                        $new_cfg_value = CFG_APP_LANGUAGE == $this->lingua_name ? $cfg_value : '';
+                        $new_cfg_value = CFG_APP_LANGUAGE == $this->language_name ? $cfg_value : '';
                         $cfg_id = $this->saveEntityCfg($entity_id, $cfg_id, $new_cfg_value);
                     }    
-                    $lingua_entities_cfg_values[] = "('{$this->lingua_id}', '$cfg_id', '$cfg_value')"; 
+                    $lingua_entities_cfg_values[] = "('{$this->language_id}', '$cfg_id', '$cfg_value')"; 
                 }
             }
         }
@@ -136,13 +136,13 @@ class Lingua
         
         if(count($lingua_entities_values))
         {
-            $entities_query = "INSERT INTO {$this->lingua_entities_table} (`locale_id`, `entities_id`, `name`) VALUES " . implode(",",$lingua_entities_values) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
+            $entities_query = "INSERT INTO {$this->lingua_entities_table} (`language_id`, `entities_id`, `name`) VALUES " . implode(",",$lingua_entities_values) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
             db_query($entities_query);
             $update = true;
         }
         if(count($lingua_entities_cfg_values))
         {
-            $entities_cfg_query = "INSERT INTO {$this->lingua_entities_configuration_table} (`locale_id`, `entities_configuration_id`, `configuration_value`) VALUES " . implode(",",$lingua_entities_cfg_values) . " ON DUPLICATE KEY UPDATE `configuration_value`=VALUES(`configuration_value`)";
+            $entities_cfg_query = "INSERT INTO {$this->lingua_entities_configuration_table} (`language_id`, `entities_configuration_id`, `configuration_value`) VALUES " . implode(",",$lingua_entities_cfg_values) . " ON DUPLICATE KEY UPDATE `configuration_value`=VALUES(`configuration_value`)";
             db_query($entities_cfg_query); 
             $update = true;   
         }
@@ -173,9 +173,9 @@ class Lingua
             {
                 continue;
             }
-            $sql_data[] = "({$this->lingua_id}, $field_id, '{$values['name']}', '{$values['shortname']}')";
+            $sql_data[] = "({$this->language_id}, $field_id, '{$values['name']}', '{$values['shortname']}')";
         }
-        $fields_query = "INSERT INTO {$this->lingua_fields_table} (`locale_id`, `field_id`, `name`, `short_name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `short_name`=VALUES(`short_name`)";
+        $fields_query = "INSERT INTO {$this->lingua_fields_table} (`language_id`, `field_id`, `name`, `short_name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `short_name`=VALUES(`short_name`)";
         db_query($fields_query);
         $this->saveUpdateTime();
     }   
@@ -195,9 +195,9 @@ class Lingua
             {
                 continue;
             }
-            $sql_data[] = "({$this->lingua_id}, $forms_tabs_id, '{$values['name']}', '{$values['description']}')";
+            $sql_data[] = "({$this->language_id}, $forms_tabs_id, '{$values['name']}', '{$values['description']}')";
         }
-        $fields_query = "INSERT INTO {$this->lingua_forms_tabs_table} (`locale_id`, `forms_tabs_id`, `name`, `description`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `description`=VALUES(`description`)";
+        $fields_query = "INSERT INTO {$this->lingua_forms_tabs_table} (`language_id`, `forms_tabs_id`, `name`, `description`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `description`=VALUES(`description`)";
         db_query($fields_query);
         $this->saveUpdateTime();
     }    
@@ -215,7 +215,7 @@ class Lingua
         {
             $filter = "AND f.entities_id IN (".implode(",", $entities_ids).")";
         }
-        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_forms_tabs_table} lf JOIN app_forms_tabs f ON (lf.forms_tabs_id=f.id) WHERE locale_id={$this->lingua_id} $filter");
+        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_forms_tabs_table} lf JOIN app_forms_tabs f ON (lf.forms_tabs_id=f.id) WHERE language_id={$this->language_id} $filter");
         $return = [];
         if(db_num_rows($q))
         {
@@ -239,7 +239,7 @@ class Lingua
     private function saveUpdateTime()
     {
         $updateTime = time();
-        db_query("UPDATE {$this->lingua_table} SET `date_updated`=$updateTime WHERE id={$this->lingua_id}");
+        db_query("UPDATE {$this->lingua_table} SET `date_updated`=$updateTime WHERE id={$this->language_id}");
     }   
 
     /**
@@ -249,38 +249,38 @@ class Lingua
      */
     private function getUpdateTime()
     {
-        $q = db_query("SELECT date_updated FROM {$this->lingua_table} WHERE id={$this->lingua_id}");
+        $q = db_query("SELECT date_updated FROM {$this->lingua_table} WHERE id={$this->language_id}");
         $d = db_fetch_array($q);
         return (int)$d['date_updated'];
     }   
 
     /**
-     * getLocaleId
+     * getLanguageId
      *
-     * @param  string $lingua_name
+     * @param  string $language_name
      * @return int
      */
-    private function getLocaleId($lingua_name)
+    private function getLanguageId($language_name)
     {
-        $info = db_find($this->lingua_table, $lingua_name, "`language`");
+        $info = db_find($this->lingua_table, $language_name, "`language`");
         $id = $info['id'];
         if(!$id)
         {
-            db_query("INSERT INTO {$this->lingua_table} (`language`) VALUES ('{$lingua_name}')");
+            db_query("INSERT INTO {$this->lingua_table} (`language`) VALUES ('{$language_name}')");
             $id = db_insert_id();
         }
         return (int)$id;
     }    
 
     /**
-     * setLocaleCache
+     * setLanguageCache
      *
      * @param  string $token
      * @return array
      */
-    function setLocaleCache($token, $override = false)
+    function setLanguageCache($token, $override = false)
     {
-        $session_name = ROOX_PLUGIN.'_locale_cache';
+        $session_name = ROOX_PLUGIN.'_language_cache';
         global ${$session_name};
         if(!app_session_is_registered('app_logged_users_id'))
         {
@@ -297,11 +297,11 @@ class Lingua
             $isCached = app_session_is_registered($session_name);
             if($isCached)
             {
-                $isSameLocale = isset(${$session_name}['locale']) && ${$session_name}['locale']==$this->lingua_name;
+                $isSamelanguage = isset(${$session_name}['language']) && ${$session_name}['language']==$this->language_name;
                 $isSameToken = isset(${$session_name}['token']) && ${$session_name}['token']==$token;
                 $isSameUpdate = isset(${$session_name}['date_updated']) && ${$session_name}['date_updated']==$this->getUpdateTime();
     
-                if(!$isSameLocale || !$isSameToken || !$isSameUpdate)
+                if(!$isSamelanguage || !$isSameToken || !$isSameUpdate)
                 {
                     $shouldUpdate = true;
                 }
@@ -315,20 +315,20 @@ class Lingua
 
         if($shouldUpdate)
         {
-            ${$session_name} = $this->getLocaleCache($token);
+            ${$session_name} = $this->getLanguageCache($token);
         }
     }    
 
     /**
-     * getLocaleCache
+     * getLanguageCache
      *
      * @param  string $token
      * @return array
      */
-    private function getLocaleCache($token)
+    private function getLanguageCache($token)
     {
         return [
-            'locale' => $this->lingua_name,
+            'language' => $this->language_name,
             'token' => $token,
             'date_updated' => $this->getUpdateTime(),
             'entities' => $this->getEntitiesData(),
@@ -348,16 +348,16 @@ class Lingua
     {
         $result = [];
         $q = db_query("SELECT e.id, e.parent_id, e.name, c.id AS cfg_id, 
-            c.configuration_name, c.configuration_value, le.name AS locale_name, 
-            lc.configuration_value AS locale_cfg_value FROM app_entities e 
+            c.configuration_name, c.configuration_value, le.name AS language_name, 
+            lc.configuration_value AS language_cfg_value FROM app_entities e 
             LEFT JOIN app_entities_configuration c ON (e.id=c.entities_id) 
-            LEFT JOIN (SELECT * FROM {$this->lingua_entities_table} WHERE locale_id={$this->lingua_id}) le ON (e.id=le.entities_id) 
-            LEFT JOIN (SELECT * FROM {$this->lingua_entities_configuration_table} WHERE locale_id={$this->lingua_id}) lc ON (c.id=lc.entities_configuration_id);"); 
+            LEFT JOIN (SELECT * FROM {$this->lingua_entities_table} WHERE language_id={$this->language_id}) le ON (e.id=le.entities_id) 
+            LEFT JOIN (SELECT * FROM {$this->lingua_entities_configuration_table} WHERE language_id={$this->language_id}) lc ON (c.id=lc.entities_configuration_id);"); 
             
         $default_cfg = [];
         while($d = db_fetch_array($q))
         {
-            $entity_name = $d['locale_name'] ? $d['locale_name'] : $d['name'];
+            $entity_name = $d['language_name'] ? $d['language_name'] : $d['name'];
             if(!isset($result[$d['id']]))
             {
                 foreach (self::CFG_SCOPE as $key => $value) 
@@ -380,7 +380,7 @@ class Lingua
             }
             if(in_array($d['configuration_name'], array_keys(self::CFG_SCOPE)))
             {
-                $lingua_value = $d['locale_cfg_value'];
+                $lingua_value = $d['language_cfg_value'];
                 $current_value = $result[$d['id']][$d['configuration_name']]['value'];
                 $result[$d['id']][$d['configuration_name']] = ['id'=>$d['cfg_id'], 'original'=>$d['configuration_value'], 'value'=>$lingua_value ? $lingua_value : ($current_value ? $current_value : $entity_name)];
             }
@@ -401,7 +401,7 @@ class Lingua
         {
             $filter = "AND f.entities_id IN (".implode(",", $entities_ids).")";
         }
-        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_fields_table} lf JOIN app_fields f ON (lf.field_id=f.id) WHERE locale_id={$this->lingua_id} $filter");
+        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_fields_table} lf JOIN app_fields f ON (lf.field_id=f.id) WHERE language_id={$this->language_id} $filter");
         $return = [];
         if(db_num_rows($q))
         {
@@ -457,11 +457,11 @@ class Lingua
      */
     function getDefinitions()
     {
-        $q = db_query("SELECT d.*, dv.dict_value AS locale_value FROM ".ROOX_PLUGIN."_dictionary d LEFT JOIN (SELECT * FROM {$this->lingua_dictionary_table} WHERE locale_id={$this->lingua_id}) dv ON (d.id=dv.dict_id)");
+        $q = db_query("SELECT d.*, dv.dict_value AS language_value FROM ".ROOX_PLUGIN."_dictionary d LEFT JOIN (SELECT * FROM {$this->lingua_dictionary_table} WHERE language_id={$this->language_id}) dv ON (d.id=dv.dict_id)");
         $return = [];
         while($d = db_fetch_array($q))
         {
-            $return[$d['id']] = ['dict_key'=>$d['dict_key'], 'dict_value'=>$d['locale_value'] ? $d['locale_value'] : ($d['dict_value'] ? $d['dict_value'] : $d['dict_key'])];
+            $return[$d['id']] = ['dict_key'=>$d['dict_key'], 'dict_value'=>$d['language_value'] ? $d['language_value'] : ($d['dict_value'] ? $d['dict_value'] : $d['dict_key'])];
         }
         return $return;
     }   
@@ -481,10 +481,10 @@ class Lingua
             {
                 continue;
             }
-            $sql_data[] = "({$this->lingua_id}, $dict_id, '{$dict_value}')";
+            $sql_data[] = "({$this->language_id}, $dict_id, '{$dict_value}')";
         }
 
-        $fields_query = "INSERT INTO {$this->lingua_dictionary_table} (`locale_id`, `dict_id`, `dict_value`) VALUES " . implode(",", $sql_data) . " ON DUPLICATE KEY UPDATE `dict_value`=VALUES(`dict_value`)";
+        $fields_query = "INSERT INTO {$this->lingua_dictionary_table} (`language_id`, `dict_id`, `dict_value`) VALUES " . implode(",", $sql_data) . " ON DUPLICATE KEY UPDATE `dict_value`=VALUES(`dict_value`)";
         db_query($fields_query);
     }
 
@@ -500,8 +500,8 @@ class Lingua
     }
     static function getEntityCfg($entity_id, $cfg_key = 'listing_heading')
     {
-        global ${ROOX_PLUGIN . '_locale_cache'};
-        $lingua_menu_data = ${ROOX_PLUGIN . '_locale_cache'}['entities'][$entity_id];
+        global ${ROOX_PLUGIN . '_language_cache'};
+        $lingua_menu_data = ${ROOX_PLUGIN . '_language_cache'}['entities'][$entity_id];
         return (strlen($lingua_menu_data[$cfg_key]['value']) > 0 ? $lingua_menu_data[$cfg_key]['value'] : $lingua_menu_data['name']);                
     }
     static function buildEntitiesMenu($menu)

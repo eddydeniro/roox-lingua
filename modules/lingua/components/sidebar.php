@@ -60,7 +60,7 @@
                 </li>
 
                 <?php
-                    //EDO: lets change the menu item to locale language
+                    //EDO: lets change the menu item
                     //$sidebarMenu = build_main_menu();
                     $sidebarMenu = Roox\Lingua::buildMainMenu();
                     echo renderSidebarMenu($sidebarMenu);
