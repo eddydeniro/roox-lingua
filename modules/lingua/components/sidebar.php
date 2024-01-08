@@ -60,9 +60,9 @@
                 </li>
 
                 <?php
-                    $sidebarMenu = build_main_menu();
                     //EDO: lets change the menu item to locale language
-                    Roox\Locale::localizeData($sidebarMenu, ${ROOX_PLUGIN . '_locale_cache'});
+                    //$sidebarMenu = build_main_menu();
+                    $sidebarMenu = Roox\Lingua::buildMainMenu();
                     echo renderSidebarMenu($sidebarMenu);
                 ?>
 
@@ -71,4 +71,3 @@
         </div>
     </div>
 </div>
-

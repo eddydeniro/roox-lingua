@@ -1,17 +1,33 @@
 
-<h5><u><b><?php echo TEXT_LOCALE_SWITCHER ?></b></u></h5>
+<h5><u><b><?php echo TEXT_LANGUAGE_SWITCHER ?></b></u></h5>
 <p>
 <?php
-    echo TEXT_LOCALE_SWITCHER_INFO;
+    echo TEXT_LANGUAGE_SWITCHER_INFO;
 ?>
 </p>
+<?php
+    echo form_tag('language_switch', url_for(ROOX_PLUGIN . '/lingua/')).input_hidden_tag('action','cfg_switcher');
+?>
 <div class="checkbox">
     <label>
-        <input type="checkbox" id="cfg_switcher" <?php echo CFG_LOCALE_SWITCH ? "checked" : "" ?>> <?php echo TEXT_ACTIVE ?>
+        <input name="switcher" type="checkbox" value="1" id="cfg_switcher" <?php echo CFG_LANGUAGE_SWITCH ? "checked" : "" ?>> <?php echo TEXT_ACTIVE ?>
     </label>
 </div>
+</form>
 <script>
     $('#cfg_switcher').on('change', function(){
+        if(this.checked)
+        {
+            this.form.submit();
+        } else {
+            $.ajax({
+                url:'<?php echo url_for("{$plugin_name}/{$module_name}/") ?>',
+                method:'post',
+                data:{switcher: 0, action: 'cfg_switcher'}
+            });            
+            $('#language_switcher').remove();
+        }
+        return;
         const isChecked = this.checked ? 1 : 0;
         $.ajax({
             url:'<?php echo url_for("{$plugin_name}/{$module_name}/") ?>',

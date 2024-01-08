@@ -6,8 +6,8 @@ switch($app_module_action)
 {
     case 'save':
         $Locale->saveEntityData($_POST['entities']);
-        ${ROOX_PLUGIN . '_locale_cache'} = $Locale->setLocaleCache($app_session_token);
+        $Locale->setLocaleCache($app_session_token, true);
+        redirect_to(ROOX_PLUGIN . "/$module_name/entities");
         break;
 }
-
-$entities_list = entities::get_tree(0, [],  0, [], [], false, $entities_filter);
+$entities_list = entities::get_tree(0, [],  0, [], [], false, 0);

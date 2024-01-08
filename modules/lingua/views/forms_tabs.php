@@ -2,9 +2,6 @@
 
 <h4><?php echo TEXT_FORM_TAB ?></h4>
 
-<?php //echo button_tag(TEXT_ADD_FOLDER,url_for('forms_tabs/form','entities_id=' . _GET('entities_id'))) ?>
-<?php //echo ' ' . button_tag(TEXT_SORT,url_for('forms_tabs/sort','entities_id=' . _GET('entities_id')),true,['class'=>'btn btn-default']) ?>
-
 <?php
     $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
     echo ($locked ? "" : form_tag('locale_form_tabs', url_for("{$plugin_name}/{$module_name}/forms_tabs", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE) . input_hidden_tag('entities_id', $_GET['entities_id']));

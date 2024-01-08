@@ -31,8 +31,8 @@
         <?php if(count($entities_list) == 0) echo '<tr><td colspan="10">' . TEXT_NO_RECORDS_FOUND . '</td></tr>'; ?>
             <?php foreach($entities_list as $v): ?>
                 <tr>
-                    <td><?php echo $v['id'] ?></td>
-                    <td>
+                    <td style="padding-top:10px;"><?php echo $v['id'] ?></td>
+                    <td style="padding-top:10px;">
                         <a href="<?php echo url_for("{$plugin_name}/{$module_name}/fields", "entities_id={$v['id']}") ?>"><span class="badge badge-danger"><?php echo TEXT_FIELDS ?></span></a>
                         <a href="<?php echo url_for("{$plugin_name}/{$module_name}/forms_tabs", "entities_id={$v['id']}") ?>"><span class="badge badge-primary"><?php echo TEXT_FORM_TAB ?></span>
                     </td>
@@ -51,7 +51,7 @@
                     {
                         $text = strpos($cfg, 'comments')!==false ? TEXT_COMMENT : $entity_name;
                         $default = strpos($cfg, 'insert')!==false ? TEXT_ADD : $text;
-                        list(${"{$cfg}_id"}, ${$cfg}) = [$current_entity_data[$cfg]['id'] ? $current_entity_data[$cfg]['id'] : $cfg, $current_entity_data[$cfg]['id'] ? $current_entity_data[$cfg]['value'] : ""];
+                        list(${"{$cfg}_id"}, ${$cfg}) = [isset($current_entity_data[$cfg]['id']) ? $current_entity_data[$cfg]['id'] : $cfg, isset($current_entity_data[$cfg]['id']) ? $current_entity_data[$cfg]['value'] : ""];
                         echo "<td>". ($locked ? "<div style='padding:8px 0;'>{$$cfg}</div>" : input_tag("entities[{$v['id']}][cfg][".${"{$cfg}_id"}."]", $$cfg, array('class' => 'form-control input-medium transparent', 'placeholder'=>$default)))."</td>";
                     }
                     ?>

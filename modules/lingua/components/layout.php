@@ -141,7 +141,7 @@
 
 <!-- BEGIN SIDEBAR -->
 <!-- EDO: Change to our modified sidebar -->
-<?php require(component_path(ROOX_PLUGIN . "/locale/sidebar")); ?>
+<?php require(component_path(ROOX_PLUGIN . "/lingua/sidebar")); ?>
 <!-- END SIDEBAR -->
 
 <!-- BEGIN CONTENT -->
@@ -169,13 +169,29 @@
 //include module views    
   if(is_file($path = $app_plugin_path . 'modules/' . $app_module . '/views/' . $app_action . '.php'))
   {    
-    //EDO: Let's change the breadcrumb to locale
+    //EDO: Let's change the breadcrumb to lingua
     if(isset($app_breadcrumb) && count($app_breadcrumb))
     {
-      Roox\Locale::localizeData($app_breadcrumb, ${ROOX_PLUGIN . '_locale_cache'}, 'listing_heading');
+      Roox\Lingua::localizeData($app_breadcrumb, ${ROOX_PLUGIN . '_locale_cache'}, 'listing_heading');
+    }
+    $initial = true;
+    if(in_array('modx', ${ROOX_PLUGIN . "_modules"}))
+    {
+      if(isset($modded_files['views'][$app_module]) && in_array($app_action, $modded_files['views'][$app_module]))
+      {
+          if(is_file($alt_path = $roox_modx_path . 'modules/' . $app_module . '/views/' . $app_action . '.php'))
+          {
+              require($alt_path);
+              $initial = false;
+          }
+      }  
+    }
+    if($initial)
+    {
+      require($path);
     }
     //EOM
-    require($path);
+    //require($path);
   }    
 ?>	
 	          			                       
@@ -316,4 +332,3 @@ jQuery(document).ready(function() {
 </body>
 <!-- END BODY -->
 </html>
-      

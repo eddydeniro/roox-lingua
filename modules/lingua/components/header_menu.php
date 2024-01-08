@@ -1,5 +1,5 @@
 <?php
-    if(CFG_LOCALE_SWITCH)
+    if(CFG_LANGUAGE_SWITCH)
     {
         global $locale_name, $locale_setting;
         $data = file_get_contents("plugins/".ROOX_PLUGIN."/modules/{$module}/components/flags/".str_replace('.php', '', $locale_setting).".png");
@@ -26,7 +26,7 @@
                         $$k = isset($$k) ? $$k : 'data:image/png;base64,' . base64_encode(file_get_contents("plugins/".ROOX_PLUGIN."/modules/{$module}/components/flags/".str_replace('.php', '', $k).".png"));                        
                         echo "
                         <li>
-                            <a href='".url_for(ROOX_PLUGIN."/{$module}/locale", "action=set_locale&locale={$k}&ref={$referrer}")."'>
+                            <a href='".url_for(ROOX_PLUGIN."/{$module}/", "action=set_language&language={$k}&ref={$referrer}")."'>
                                 <img src='{$$k}' alt='$language' height='15'>  $language
                             </a>
                         </li>";
