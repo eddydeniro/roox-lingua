@@ -1,14 +1,14 @@
 <?php
     if(CFG_LANGUAGE_SWITCH)
     {
-        global $locale_name, $locale_setting;
-        $data = file_get_contents("plugins/".ROOX_PLUGIN."/modules/{$module}/components/flags/".str_replace('.php', '', $locale_setting).".png");
-        $$locale_setting = 'data:image/png;base64,' . base64_encode($data);
+        global $language_name, $language_setting;
+        $data = file_get_contents("plugins/".ROOX_PLUGIN."/modules/{$module}/components/flags/".str_replace('.php', '', $language_setting).".png");
+        $$language_setting = 'data:image/png;base64,' . base64_encode($data);
         $referrer = base64_encode($_SERVER['QUERY_STRING']);
 ?>
     <li class="dropdown" id="language_switcher">
-        <a href="#" title="<?php echo $locale_name; ?>" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-            <img src="<?php echo $$locale_setting; ?>" alt="<?php echo strtoupper(APP_LANGUAGE_SHORT_CODE); ?>" height="15" style="margin-top:-5px;">
+        <a href="#" title="<?php echo $language_name; ?>" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+            <img src="<?php echo $$language_setting; ?>" alt="<?php echo strtoupper(APP_LANGUAGE_SHORT_CODE); ?>" height="15" style="margin-top:-5px;">
         </a>
         <ul class="dropdown-menu extended">
             <li style="cursor:pointer">
@@ -19,7 +19,7 @@
                 <?php 
                     foreach(app_get_languages_choices() as $k=>$language)
                     {
-                        if($k==$locale_setting)
+                        if($k==$language_setting)
                         {
                             continue;
                         }

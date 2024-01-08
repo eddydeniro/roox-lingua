@@ -1,9 +1,9 @@
 <?php
-    $locale_choices = app_get_languages_choices();
-    $locale_setting = $app_user['language'] ? $app_user['language'] : 'english.php' ;
-    $locale_name = $locale_choices[$locale_setting];  
+    $language_choices = app_get_languages_choices();
+    $language_setting = $app_user['language'] ? $app_user['language'] : 'english.php' ;
+    $language_name = $language_choices[$language_setting];  
 
-    $Locale = new Roox\Lingua($locale_setting, ROOX_PLUGIN);
+    $Locale = new Roox\Lingua($language_setting, ROOX_PLUGIN);
     $locale_id = $Locale->lingua_id;
     $Locale->setLocaleCache($app_session_token);
     $roox_dictionary = $Locale->getDefinitions();
