@@ -7,10 +7,8 @@ This plugin module currently supports the translation of:
 * Field names (long and short)
 * Form tabs (name, description)
 
+
+
 How to install:
-
-This module requires [Roox Core](https://github.com/eddydeniro/roox-core)
-
-If you have installed it, download the zip file of this module.
-
-Go to setting page of Roox Core and follow the instruction in the Module Installer section.
+* This module requires [Roox Core](https://github.com/eddydeniro/roox-core). If you have installed it, just download the zip file of this module.
+* Go to setting page of **Roox Core** and follow the instruction in the _Module Installer_ section.
