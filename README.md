@@ -8,6 +8,7 @@ This plugin module currently supports the translation of:
 * Form tabs (name, description)
 
 How to install:
+
 This module requires [Roox Core](https://github.com/eddydeniro/roox-core)
 
 If you have installed it, download the zip file of this module.
