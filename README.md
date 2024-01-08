@@ -9,5 +9,7 @@ This plugin module currently supports the translation of:
 
 How to install:
 This module requires [Roox Core](https://github.com/eddydeniro/roox-core)
+
 If you have installed it, download the zip file of this module.
+
 Go to setting page of Roox Core and follow the instruction in the Module Installer section.
