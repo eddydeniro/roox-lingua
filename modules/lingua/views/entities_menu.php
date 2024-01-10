@@ -4,7 +4,7 @@
 
 <?php
     $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
-    echo ($locked ? "" : form_tag('language_entities_menu', url_for("{$plugin_name}/{$module_name}/entities_menu", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
+    echo ($locked ? TEXT_CANNOT_TRANSLATE : form_tag('language_entities_menu', url_for("{$plugin_name}/{$module_name}/entities_menu", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
 ?>
 <div class="table-scrollable">
 <table class="tree-table table table-striped table-bordered table-hover">
@@ -41,4 +41,3 @@ foreach($menu as $v):
 <?php
     echo $locked ? "" : "</form>";
 ?>
-<?php echo '<a class="btn btn-default" href="' . url_for(ROOX_PLUGIN."/{$module_name}/entities") . '">' . TEXT_BUTTON_BACK. '</a>'; ?>

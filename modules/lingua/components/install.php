@@ -31,19 +31,19 @@ $queries = [
     "CREATE TABLE IF NOT EXISTS `__TABLE__` (
         `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
         `language_id` int UNSIGNED NOT NULL,
-        `entities_configuration_id` int UNSIGNED NOT NULL,
-        `configuration_value` text NOT NULL,
-        PRIMARY KEY (`id`),
-        UNIQUE KEY `idx_language_entities_configuration_id` (`language_id`,`entities_configuration_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;",           
-    "CREATE TABLE IF NOT EXISTS `__TABLE__` (
-        `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-        `language_id` int UNSIGNED NOT NULL,
         `entities_menu_id` int UNSIGNED NOT NULL,
         `name` varchar(64) NOT NULL,
         PRIMARY KEY (`id`),
         UNIQUE KEY `idx_language_entities_menu_id` (`language_id`,`entities_menu_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;",
+    "CREATE TABLE IF NOT EXISTS `__TABLE__` (
+        `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+        `language_id` int UNSIGNED NOT NULL,
+        `entities_configuration_id` int UNSIGNED NOT NULL,
+        `configuration_value` text NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `idx_language_entities_configuration_id` (`language_id`,`entities_configuration_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;",           
     "CREATE TABLE IF NOT EXISTS `__TABLE__` (
         `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
         `language_id` int UNSIGNED NOT NULL,
@@ -73,7 +73,7 @@ foreach (${ROOX_PLUGIN . "_" . $module_name . "_tables"} as $key => $table)
 db_query("
     INSERT IGNORE INTO `{$dictionary_table}` (`dict_key`, `dict_value`) VALUES
     ('CFG_LANGUAGE_SWITCHER', '1'),                
-    ('MOD_LINGUA', 'Translator'),
+    ('MOD_LINGUA', 'Lingua'),
     ('TEXT_LINGUA_INFO', 'Translate your entities and their components into several languages to make your application multilingual.'),
     ('TEXT_LANGUAGE_SWITCHER', 'Language Switcher'),
     ('TEXT_LANGUAGE_SWITCHER_INFO', 'Language switcher will be displayed on top menu.'),
@@ -81,7 +81,8 @@ db_query("
     ('TEXT_CLEAR_ORPHANS_INFO', 'You can clear orphaned language data left from entity or field deletion.'),
     ('TEXT_ORPHAN_DATA', 'Orphaned data'),
     ('TEXT_ORPHAN_DATA_CLEARED', 'Orphaned data is successfully cleared!'),
-    ('TEXT_ORPHAN_DATA_NOT_CLEARED', 'Orphaned data is not cleared!');
+    ('TEXT_ORPHAN_DATA_NOT_CLEARED', 'Orphaned data is not cleared!'),
+    ('TEXT_CANNOT_TRANSLATE','You cannot translate into the same language as your application language setting.');
 ");
 
 $languageList = app_get_languages_choices();

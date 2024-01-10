@@ -7,7 +7,7 @@
 
 <?php
   $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
-  echo ($locked ? "" : form_tag('language_fields_form', url_for("{$plugin_name}/{$module_name}/fields", 'action=save')).submit_tag(TEXT_BUTTON_SAVE).' '.button_tag(TEXT_BUTTON_BACK, url_for(ROOX_PLUGIN."/{$module_name}/entities"), false, ['class'=>'btn btn-default']) . input_hidden_tag('entities_id', $_GET['entities_id']));
+  echo ($locked ? TEXT_CANNOT_TRANSLATE : form_tag('language_fields_form', url_for("{$plugin_name}/{$module_name}/fields", 'action=save')).submit_tag(TEXT_BUTTON_SAVE) . input_hidden_tag('entities_id', $_GET['entities_id']));
 ?>
 
 <div class="table-scrollable">

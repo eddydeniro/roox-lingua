@@ -8,7 +8,7 @@
 
 <?php
     $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
-    echo ($locked ? "" : form_tag('language_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
+    echo ($locked ? TEXT_CANNOT_TRANSLATE : form_tag('language_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
 ?>
 <div class="table-scrollable">
 <div class="table-scrollable table-wrapper slimScroll" id="slimScroll">

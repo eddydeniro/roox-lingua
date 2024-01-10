@@ -25,9 +25,6 @@
     </div>
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <li class="navbar-nav-entities_menu <?php echo $app_action=='entities_menu'?'selected':''; ?>">
-                <a href="<?php echo url_for("{$plugin_name}/{$module_name}/entities_menu") ?>"><?php echo TEXT_MENU_CONFIGURATION_MENU ?></a>
-            </li>
             <?php if($app_action=='fields'): ?>
                 <li class="navbar-nav-fields selected">
                     <a href="#"><?php echo TEXT_FIELDS . " | " . ${ROOX_PLUGIN . '_language_cache'}['entities'][$_GET['entities_id']]['name'] ?></a>
@@ -37,7 +34,10 @@
                 <li class="navbar-nav-forms_tabs selected">
                     <a href="#"><?php echo TEXT_FORM_TAB . " | " . ${ROOX_PLUGIN . '_language_cache'}['entities'][$_GET['entities_id']]['name']?></a>
                 </li>                
-            <?php endif; ?>            
+            <?php endif; ?>
+            <li class="navbar-nav-entities_menu <?php echo $app_action=='entities_menu'?'selected':''; ?>">
+                <a href="<?php echo url_for("{$plugin_name}/{$module_name}/entities_menu") ?>"><?php echo TEXT_MENU_CONFIGURATION_MENU ?></a>
+            </li>
         </ul>
     </div>
 </div>
