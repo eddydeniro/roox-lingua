@@ -2,9 +2,10 @@
     require component_path(ROOX_PLUGIN . "/{$module_name}/header"); 
 ?>
 
-<h4><?php echo TEXT_HEADING_ENTITY_CONFIGURATION ?></h4>
-<p></p>
-<br>
+<!-- <h4><?php echo TEXT_HEADING_ENTITY_CONFIGURATION ?></h4> -->
+<!-- <p></p> -->
+<!-- <br> -->
+
 <?php
     $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
     echo ($locked ? "" : form_tag('language_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
@@ -33,8 +34,9 @@
                 <tr>
                     <td style="padding-top:10px;"><?php echo $v['id'] ?></td>
                     <td style="padding-top:10px;">
-                        <a href="<?php echo url_for("{$plugin_name}/{$module_name}/fields", "entities_id={$v['id']}") ?>"><span class="badge badge-danger"><?php echo TEXT_FIELDS ?></span></a>
-                        <a href="<?php echo url_for("{$plugin_name}/{$module_name}/forms_tabs", "entities_id={$v['id']}") ?>"><span class="badge badge-primary"><?php echo TEXT_FORM_TAB ?></span>
+                        <?php
+                            echo    button_icon(TEXT_FIELDS, 'fa fa-list-alt', url_for("{$plugin_name}/{$module_name}/fields", "entities_id={$v['id']}"), false) . ' ' . 
+                                    button_icon(TEXT_FORM_TAB, 'fa fa-window-maximize', url_for("{$plugin_name}/{$module_name}/forms_tabs", "entities_id={$v['id']}"), false);                        ?>
                     </td>
                     <td>                        
                         <?php echo '<div class="tt" data-tt-id="entity_' . $v['id'] . '" ' . ($v['parent_id'] > 0 ? 'data-tt-parent="entity_' . $v['parent_id'] . '"' : '') . '></div>' ?>

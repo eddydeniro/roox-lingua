@@ -103,6 +103,40 @@ class Lingua
         //TBD for comments tables because if using default title, it will translated by its language file
     }  
 
+
+    function saveEntitiesMenu($data)
+    {
+        $sql_data = [];
+        foreach ($data as $menu_id => $values) 
+        {
+            if(!$values['name'])
+            {
+                continue;
+            }
+            $sql_data[] = "({$this->language_id}, $menu_id, '{$values['name']}')";
+        }
+        $query = "INSERT INTO {$this->lingua_entities_menu_table} (`language_id`, `entities_menu_id`, `name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
+        db_query($query);
+        $this->saveUpdateTime();
+    }
+
+    function getEntitiesMenu()
+    {
+        $table = $this->lingua_entities_menu_table;
+        $partner_table = $this->partner_tables[$table][0];
+        $q = db_query("SELECT le.* FROM {$table} le JOIN {$partner_table} e ON (le.entities_menu_id=e.id) WHERE language_id={$this->language_id}");
+        $return = [];
+        if(db_num_rows($q))
+        {
+            while($d = db_fetch_array($q))
+            {
+                $return[$d['entities_menu_id']] = ['name'=>$d['name']];
+            }
+        }
+        return $return;        
+    }
+
+
     /**
      * saveEntityData
      *
@@ -332,7 +366,7 @@ class Lingua
             'token' => $token,
             'date_updated' => $this->getUpdateTime(),
             'entities' => $this->getEntitiesData(),
-            // 'entities_menu' => $this->getMenu($entities_cfg),
+            'entities_menu' => $this->getEntitiesMenu(),
             'fields' => $this->getFields(),
             'forms_tabs'=>$this->getFormsTabs(),
             'reports'=>self::getReports()
@@ -401,7 +435,7 @@ class Lingua
         {
             $filter = "AND f.entities_id IN (".implode(",", $entities_ids).")";
         }
-        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_fields_table} lf JOIN app_fields f ON (lf.field_id=f.id) WHERE language_id={$this->language_id} $filter");
+        $q = db_query("SELECT lf.*, f.name AS original_name, f.entities_id, f.tooltip_display_as, f.tooltip_in_item_page, f.is_required FROM {$this->lingua_fields_table} lf JOIN app_fields f ON (lf.field_id=f.id) WHERE language_id={$this->language_id} $filter");
         $return = [];
         if(db_num_rows($q))
         {
@@ -411,7 +445,7 @@ class Lingua
                 {
                     $return[$d['entities_id']] = [];
                 }
-                $return[$d['entities_id']][$d['field_id']] = ['name'=>$d['name'], 'short_name'=>$d['short_name']];
+                $return[$d['entities_id']][$d['field_id']] = $d;
             }
         }
         return $return;        
@@ -504,9 +538,11 @@ class Lingua
         $lingua_menu_data = ${ROOX_PLUGIN . '_language_cache'}['entities'][$entity_id];
         return (strlen($lingua_menu_data[$cfg_key]['value']) > 0 ? $lingua_menu_data[$cfg_key]['value'] : $lingua_menu_data['name']);                
     }
+
     static function buildEntitiesMenu($menu)
     {
-        global $app_user;
+        global $app_user, ${ROOX_PLUGIN . '_language_cache'};
+        $locale_entities = ${ROOX_PLUGIN . '_language_cache'}['entities'];
 
         $custom_entities_menu = array();
         $menu_query = db_fetch_all('app_entities_menu', 'length(entities_list)>0', 'sort_order, name');
@@ -538,7 +574,7 @@ class Lingua
                 $s = array();
     
                 $entity_cfg = new \entities_cfg($entities['id']);
-                $menu_title = self::getEntityCfg($entities['id'], 'menu_title'); //EDO: (strlen($lingua_menu_data['menu_title']['value']) > 0 ? $lingua_menu_data['menu_title']['value'] : $lingua_menu_data['name']);
+                $menu_title = $locale_entities[$entities['id']]['menu_title']['value'] ?? (strlen($entity_cfg->get('menu_title')) > 0 ? $entity_cfg->get('menu_title') : $entities['name']);
                 $menu_icon = (strlen($entity_cfg->get('menu_icon')) > 0 ? $entity_cfg->get('menu_icon') : ($entities['id'] == 1 ? 'fa-user' : 'fa-reorder'));
     
                 $menu[] = array(
@@ -561,7 +597,7 @@ class Lingua
                 }
     
                 $entity_cfg = new \entities_cfg($entities['id']);
-                $menu_title = self::getEntityCfg($entities['id'], 'menu_title'); //EDO: (strlen($lingua_menu_data['menu_title']['value']) > 0 ? $lingua_menu_data['menu_title']['value'] : $lingua_menu_data['name']);
+                $menu_title = $locale_entities[$entities['id']]['menu_title']['value'] ?? (strlen($entity_cfg->get('menu_title')) > 0 ? $entity_cfg->get('menu_title') : $entities['name']);
                 $menu_icon = (strlen($entity_cfg->get('menu_icon')) > 0 ? $entity_cfg->get('menu_icon') : 'fa-reorder');
     
                 $menu[] = array(
@@ -576,6 +612,135 @@ class Lingua
     
         return $menu;
     }
+
+    static function buildCustomEntitiesMenu($menu, $parent_id = 0, $level = 0)
+    {
+        global $app_user, ${ROOX_PLUGIN . '_language_cache'};
+
+        $locale_entities_menu = ${ROOX_PLUGIN . '_language_cache'}['entities_menu'];
+        $locale_entities = ${ROOX_PLUGIN . '_language_cache'}['entities'];
+        if($level > 3)
+            return [];
+    
+        $custom_entities_menu = array();
+        $entities_menu_query = db_fetch_all('app_entities_menu', 'parent_id=' . $parent_id, 'sort_order, name');
+        while($entities_menu = db_fetch_array($entities_menu_query))
+        {
+            $sub_menu = array();
+    
+            //add entities
+            if(strlen($entities_menu['entities_list']??'') and $entities_menu['type']=='entity')
+            {
+                $where_sql = " e.id in (" . $entities_menu['entities_list'] . ")";
+    
+                if($app_user['group_id'] == 0)
+                {
+                    $entities_query = db_query("select * from app_entities e where e.id in (" . $entities_menu['entities_list'] . ") order by field(e.id," . $entities_menu['entities_list'] . ")");
+                }
+                else
+                {
+                    $entities_query = db_query("select e.* from app_entities e, app_entities_access ea where e.id=ea.entities_id and length(ea.access_schema)>0 and ea.access_groups_id='" . db_input($app_user['group_id']) . "' and e.id in (" . $entities_menu['entities_list'] . ") order by field(e.id," . $entities_menu['entities_list'] . ")");
+                }
+    
+                while($entities = db_fetch_array($entities_query))
+                {
+                    if($entities['parent_id'] == 0)
+                    {
+                        $s = array();
+    
+                        $entity_cfg = new \entities_cfg($entities['id']);
+                        $menu_title = $locale_entities[$entities['id']]['menu_title']['value'] ?? (strlen($entity_cfg->get('menu_title')) > 0 ? $entity_cfg->get('menu_title') : $entities['name']);
+                        $menu_icon = (strlen($entity_cfg->get('menu_icon')) > 0 ? $entity_cfg->get('menu_icon') : ($entities['id'] == 1 ? 'fa-user' : 'fa-reorder'));
+    
+                        $sub_menu[] = array(
+                            'title' => $menu_title, 
+                            'url' => url_for('items/items', 'path=' . $entities['id']), 
+                            'class' => $menu_icon,
+                            'icon_color' => $entity_cfg->get('menu_icon_color'),
+                            'bg_color' => $entity_cfg->get('menu_bg_color'),
+                            );
+                    }
+                    else
+                    {
+                        $reports_info = \reports::create_default_entity_report($entities['id'], 'entity_menu');
+    
+                        //check if parent reports was not set
+                        if($reports_info['parent_id'] == 0)
+                        {
+                            \reports::auto_create_parent_reports($reports_info['id']);
+                        }
+    
+                        $entity_cfg = new \entities_cfg($entities['id']);
+                        $menu_title = $locale_entities[$entities['id']]['menu_title']['value'] ?? (strlen($entity_cfg->get('menu_title')) > 0 ? $entity_cfg->get('menu_title') : $entities['name']);
+                        $menu_icon = (strlen($entity_cfg->get('menu_icon')) > 0 ? $entity_cfg->get('menu_icon') : ($entities['id'] == 1 ? 'fa-user' : 'fa-reorder'));
+    
+                        $sub_menu[] = array(
+                            'title' => $menu_title, 
+                            'url' => url_for('reports/view', 'reports_id=' . $reports_info['id']), 
+                            'class' => $menu_icon,
+                            'icon_color' => $entity_cfg->get('menu_icon_color'),
+                            'bg_color' => $entity_cfg->get('menu_bg_color'),
+                            );
+                    }
+                }
+            }
+    
+            //add reports
+            if($entities_menu['type']=='entity')
+            {
+                $sub_menu = \entities_menu::build_menu($entities_menu['reports_list'], $sub_menu);
+                $sub_menu = \entities_menu::build_pages_menu($entities_menu['pages_list'], $sub_menu);
+            }
+            
+            //add urls
+            if($entities_menu['type']=='url' and strlen($entities_menu['url']))
+            {            
+                if((strlen($entities_menu['users_groups']) and in_array($app_user['group_id'],explode(',',$entities_menu['users_groups']))) or strlen($entities_menu['assigned_to']) and in_array($app_user['id'],explode(',',$entities_menu['assigned_to'])))
+                {
+                    $menu_icon = (strlen($entities_menu['icon']) > 0 ? $entities_menu['icon'] : 'fa-reorder');
+                    $sub_menu[] = array(
+                        'title' => $locale_entities_menu[$entities_menu['id']]['name'] ?? $entities_menu['name'], 
+                        'url' => $entities_menu['url'], 
+                        'class' => $menu_icon,'target'=>'_blank',
+                        'icon_color' => $entities_menu['icon_color'],
+                        'bg_color' => $entities_menu['bg_color'],
+                        );                
+                }
+                
+            }       
+    
+            $sub_menu = self::buildCustomEntitiesMenu($sub_menu, $entities_menu['id'], $level + 1);
+    
+            $nested_query = db_query("select id from app_entities_menu where parent_id='" . $entities_menu['id'] . "' limit 1");
+            $has_nested = db_fetch_array($nested_query);
+    
+            if(count($sub_menu) == 1 and !$has_nested)
+            {
+                $menu_icon = (strlen($entities_menu['icon']) > 0 ? $entities_menu['icon'] : 'fa-reorder');
+                $menu[] = array(
+                    'title' => $locale_entities_menu[$entities_menu['id']]['name'] ?? $entities_menu['name'], 
+                    'url' => $sub_menu[0]['url'], 
+                    'class' => $menu_icon,
+                    'icon_color' => $entities_menu['icon_color'],
+                    'bg_color' => $entities_menu['bg_color'],
+                    'target'=>$sub_menu[0]['target']??false);
+            }
+            elseif(count($sub_menu) > 0)
+            {
+                $menu_icon = (strlen($entities_menu['icon']??'') > 0 ? $entities_menu['icon'] : 'fa-reorder');
+                $menu[] = array(
+                    'title' => $locale_entities_menu[$entities_menu['id']]['name'] ?? $entities_menu['name'], 
+                    'url' => $sub_menu[0]['url'], 
+                    'class' => $menu_icon, 
+                    'icon_color' => $entities_menu['icon_color'],
+                    'bg_color' => $entities_menu['bg_color'],
+                    'submenu' => $sub_menu);
+            }
+        }        
+    
+        return $menu;
+    }
+    
     static function buildMainMenu()
     {
         global $app_user;
@@ -590,11 +755,15 @@ class Lingua
         $menu[] = array('title' => TEXT_MENU_DASHBOARD, 'url' => url_for('dashboard/dashboard'), 'class' => 'fa-home');
     
         $menu = build_reports_groups_menu($menu);
-    
+
+        // $menu = build_entities_menu($menu);
+
         $menu = self::buildEntitiesMenu($menu); //EDO
-    
-        $menu = build_custom_entities_menu($menu);
+
+        // $menu = build_custom_entities_menu($menu);
         
+        $menu = self::buildCustomEntitiesMenu($menu); //EDO
+    
         $menu = build_call_history_menu($menu);
     
         $menu = build_reports_menu($menu);
