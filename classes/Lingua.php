@@ -113,7 +113,8 @@ class Lingua
             {
                 continue;
             }
-            $sql_data[] = "({$this->language_id}, $menu_id, '{$values['name']}')";
+            $name = db_input($values['name']);
+            $sql_data[] = "({$this->language_id}, $menu_id, '{$name}')";
         }
         $query = "INSERT INTO {$this->lingua_entities_menu_table} (`language_id`, `entities_menu_id`, `name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
         db_query($query);
@@ -151,7 +152,8 @@ class Lingua
         {
             if($values['name'])
             {
-                $lingua_entities_values[] = "('{$this->language_id}', '$entity_id', '{$values['name']}')";
+                $name = db_input($values['name']);
+                $lingua_entities_values[] = "('{$this->language_id}', '$entity_id', '{$name}')";
             }
             foreach ($values['cfg'] as $cfg_id => $cfg_value) 
             {
@@ -162,6 +164,7 @@ class Lingua
                         $new_cfg_value = CFG_APP_LANGUAGE == $this->language_name ? $cfg_value : '';
                         $cfg_id = $this->saveEntityCfg($entity_id, $cfg_id, $new_cfg_value);
                     }    
+                    $cfg_value = db_input($cfg_value);
                     $lingua_entities_cfg_values[] = "('{$this->language_id}', '$cfg_id', '$cfg_value')"; 
                 }
             }
@@ -188,6 +191,7 @@ class Lingua
 
     private function saveEntityCfg($entities_id, $cfg_name, $cfg_value)
     {
+        $cfg_value = db_input($cfg_value);
         db_query("INSERT INTO app_entities_configuration (entities_id, configuration_name, configuration_value) VALUES ('$entities_id','$cfg_name', '$cfg_value');");
         return db_insert_id();
     }
@@ -207,7 +211,9 @@ class Lingua
             {
                 continue;
             }
-            $sql_data[] = "({$this->language_id}, $field_id, '{$values['name']}', '{$values['shortname']}')";
+            $name = db_input($values['name']);
+            $shortname = db_input($values['shortname']);
+            $sql_data[] = "({$this->language_id}, $field_id, '{$name}', '{$shortname}')";
         }
         $fields_query = "INSERT INTO {$this->lingua_fields_table} (`language_id`, `field_id`, `name`, `short_name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `short_name`=VALUES(`short_name`)";
         db_query($fields_query);
@@ -228,8 +234,10 @@ class Lingua
             if(!$values['name'])
             {
                 continue;
-            }
-            $sql_data[] = "({$this->language_id}, $forms_tabs_id, '{$values['name']}', '{$values['description']}')";
+            }                        
+            $name = db_input($values['name']);
+            $description = db_input($values['description']);
+            $sql_data[] = "({$this->language_id}, $forms_tabs_id, '{$name}', '{$description}')";
         }
         $fields_query = "INSERT INTO {$this->lingua_forms_tabs_table} (`language_id`, `forms_tabs_id`, `name`, `description`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `description`=VALUES(`description`)";
         db_query($fields_query);
@@ -300,6 +308,7 @@ class Lingua
         $id = $info['id'];
         if(!$id)
         {
+            $language_name = db_input($language_name);
             db_query("INSERT INTO {$this->lingua_table} (`language`) VALUES ('{$language_name}')");
             $id = db_insert_id();
         }
@@ -515,6 +524,7 @@ class Lingua
             {
                 continue;
             }
+            $dict_value = db_input($dict_value);
             $sql_data[] = "({$this->language_id}, $dict_id, '{$dict_value}')";
         }
 
