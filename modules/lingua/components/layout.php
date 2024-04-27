@@ -59,6 +59,7 @@
 <link rel="stylesheet" type="text/css" href="js/treetable-master/jquery-treetable.css">
 <link rel="stylesheet" type="text/css" href="js/xdsoft_datetimepicker/2.5.22/jquery.datetimepicker.css">
 <link rel="stylesheet" type="text/css" href="js/floating-scroll-master/3.2.0/jquery.floatingscroll.css">
+<link rel="stylesheet" type="text/css" href="template/plugins/ion.rangeSlider-master/2.3.1/css/ion.rangeSlider.min.css"/>
 <?php require('js/mapbbcode-master/includes.css.php'); ?>
 
 <script src="<?= CFG_PATH_TO_JQUERY ?>" type="text/javascript"></script>   
@@ -140,8 +141,7 @@
 <div class="page-container">
 
 <!-- BEGIN SIDEBAR -->
-<!-- EDO: Change to our modified sidebar -->
-<?php require(component_path(ROOX_PLUGIN . "/lingua/sidebar")); ?>
+<?php require('template/sidebar.php'); ?>
 <!-- END SIDEBAR -->
 
 <!-- BEGIN CONTENT -->
@@ -256,9 +256,9 @@
 <script type="text/javascript" src="js/jquery.zeninput/jquery.zeninput.js" ></script>
 <script type="text/javascript" src="js/clipboardjs/2.0.11/clipboard.min.js"></script>
 <script type="text/javascript" src="js/floating-scroll-master/3.2.0/jquery.floatingscroll.min.js"></script>
-
 <script type="text/javascript" src="js/datatables/1.13.4/datatables.min.js"></script>
-
+<script type="text/javascript" src="template/plugins/ion.rangeSlider-master/2.3.1/js/ion.rangeSlider.min.js"></script>
+<script type="text/javascript" src="js/audiorecorder/1.0/audiorecorder_helper.js"></script>
 
 
 <!-- END PAGE LEVEL PLUGINS -->

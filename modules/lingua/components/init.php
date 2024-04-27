@@ -6,6 +6,8 @@
     $Lingua = new Roox\Lingua($language_setting, ROOX_PLUGIN);
     $language_id = $Lingua->language_id;
     $Lingua->setLanguageCache($app_session_token);
+    Roox\Lingua::replaceGlobalListCache($app_global_choices_cache);
+    Roox\Lingua::replaceFieldChoicesCache($app_choices_cache);
     $roox_dictionary = $Lingua->getDefinitions();
     define('CFG_LANGUAGE_SWITCH', $Lingua->languageSwitcher());
     foreach ($roox_dictionary as $values) 

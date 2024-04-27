@@ -4,7 +4,7 @@
   $module_name = 'lingua';
   $module_title = MOD_LINGUA;  
   $module_info = TEXT_LINGUA_INFO;
-  $module_version = '1.0';
+  $module_version = '1.1';
   $module_url = 'https://github.com/eddydeniro/roox-lingua';
 
   $Lingua->setLanguageCache($app_session_token, true);

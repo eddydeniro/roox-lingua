@@ -4,6 +4,7 @@
     </div>
     <div class="col-md-3">
         <?php
+        $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
         echo form_tag('lang_list_form', url_for("{$plugin_name}/{$module_name}/", "action=set_language&ref=" . base64_encode($_SERVER['QUERY_STRING']))) .
             select_tag('language', $language_choices, $language_setting, array('class' => 'form-control  ', 'onChange' => 'this.form.submit()')) .
             '</form>';
@@ -37,6 +38,12 @@
             <?php endif; ?>
             <li class="navbar-nav-entities_menu <?php echo $app_action=='entities_menu'?'selected':''; ?>">
                 <a href="<?php echo url_for("{$plugin_name}/{$module_name}/entities_menu") ?>"><?php echo TEXT_MENU_CONFIGURATION_MENU ?></a>
+            </li>
+            <li class="navbar-nav-global_lists <?php echo $app_action=='global_lists' ? 'selected' : ''; ?>">
+                <a href="<?php echo url_for("{$plugin_name}/{$module_name}/global_lists") ?>"><?php echo TEXT_MENU_GLOBAL_LISTS  ?></a>
+            </li>          
+            <li class="navbar-nav-fields_choices <?php echo $app_action=='fields_choices' ? 'selected' : ''; ?>">
+                <a href="<?php echo url_for("{$plugin_name}/{$module_name}/fields_choices") ?>"><?php echo TEXT_NAV_FIELDS_CHOICES_CONFIG  ?></a>
             </li>
         </ul>
     </div>

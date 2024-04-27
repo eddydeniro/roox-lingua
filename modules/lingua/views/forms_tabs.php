@@ -1,9 +1,5 @@
-<?php require component_path(ROOX_PLUGIN . "/{$module_name}/header"); ?>
-
-<!-- <h4><?php echo TEXT_FORM_TAB ?></h4> -->
-
-<?php
-    $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
+<?php 
+    require component_path(ROOX_PLUGIN . "/{$module_name}/header"); 
     echo ($locked ? TEXT_CANNOT_TRANSLATE : form_tag('language_form_tabs', url_for("{$plugin_name}/{$module_name}/forms_tabs", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE) . input_hidden_tag('entities_id', $_GET['entities_id']));
 ?>
 <div class="table-scrollable">

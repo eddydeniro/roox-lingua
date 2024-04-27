@@ -1,4 +1,13 @@
 <?php
+$choices_query = "CREATE TABLE IF NOT EXISTS `__TABLE__` (
+    `id` int unsigned NOT NULL AUTO_INCREMENT,
+    `language_id` int unsigned NOT NULL,
+    `choices_id` int unsigned NOT NULL,
+    `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `language_choices_id` (`language_id`,`choices_id`)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+
 $queries = [
     "CREATE TABLE IF NOT EXISTS `__TABLE__` (
         `id` int UNSIGNED NOT NULL AUTO_INCREMENT, 
@@ -53,6 +62,8 @@ $queries = [
         PRIMARY KEY (`id`),
         UNIQUE KEY `idx_language_forms_tabs_id` (`language_id`,`forms_tabs_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;",  
+    $choices_query,
+    $choices_query,
     "CREATE TABLE IF NOT EXISTS `__TABLE__` (
         `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
         `language_id` int UNSIGNED NOT NULL,

@@ -22,6 +22,8 @@ class Lingua
         $lingua_entities_configuration_table,
         $lingua_forms_tabs_table,
         $lingua_dictionary_table,
+        $lingua_global_lists_choices_table,
+        $lingua_fields_choices_table,
         $partner_tables;
 
     function __construct($language_name)
@@ -41,7 +43,9 @@ class Lingua
             $this->lingua_entities_configuration_table=>['app_entities_configuration', 'entities_configuration_id'],
             $this->lingua_entities_menu_table=>['app_entities_menu', 'entities_menu_id'],
             $this->lingua_fields_table=>['app_fields', 'field_id'],
-            $this->lingua_forms_tabs_table=>['app_forms_tabs', 'forms_tabs_id'],            
+            $this->lingua_forms_tabs_table=>['app_forms_tabs', 'forms_tabs_id'],
+            $this->lingua_global_lists_choices_table=>['app_global_lists_choices', 'choices_id'],
+            $this->lingua_fields_choices_table=>['app_fields_choices', 'choices_id']                        
         ];
 
         $this->language_id = $this->getLanguageId($language_name);
@@ -103,6 +107,148 @@ class Lingua
         //TBD for comments tables because if using default title, it will translated by its language file
     }  
 
+    static function getTranslatedChoices($choices)
+    {
+        $translated = [];
+        foreach ($choices as $key => $value) 
+        {
+            $tmp = [];
+            foreach ($value as $k => $v) 
+            {
+                if($v['original']!=$v['name'])
+                {
+                    $tmp[$k] = $v;            
+                }
+            }
+            if(count($tmp))
+            {
+                $translated[$key] = $tmp;
+            }
+        }
+        return $translated;
+    }
+
+    function saveFieldsChoices($data)
+    {
+        $sql_data = [];
+        foreach ($data as $choices_id => $values) 
+        {
+            if(!$values['name'])
+            {
+                continue;
+            }
+            $sql_data[] = "({$this->language_id}, $choices_id, '".db_input($values['name'])."')";
+        }
+        $query = "INSERT INTO {$this->lingua_fields_choices_table} (`language_id`, `choices_id`, `name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
+        db_query($query);
+        $this->saveUpdateTime();
+    }    
+
+    function getFieldsChoices()
+    {
+        $table = $this->lingua_fields_choices_table;
+        $partner_table = $this->partner_tables[$table][0];
+        $foreign_key = $this->partner_tables[$table][1];
+        $parent_key = "fields_id";
+        $q = db_query("SELECT le.name, e.id, e.{$parent_key}, e.name AS original, f.entities_id, f.name AS field_name FROM {$partner_table} e LEFT JOIN app_fields f ON (e.fields_id=f.id) LEFT JOIN (SELECT name, choices_id  FROM {$table} WHERE language_id={$this->language_id}) le ON (e.id=le.{$foreign_key})");
+        $fields_choices = [];
+        $field_names = [];
+        while($d = db_fetch_array($q))
+        {
+            $field_names[$d[$parent_key]] = ['entities_id'=>$d['entities_id'], 'field_name'=>$d['field_name']];
+            if(!isset($fields_choices[$d[$parent_key]]))
+            {
+                $fields_choices[$d[$parent_key]] = [
+                    $d['id']=>[
+                        'name'=>$d['name'],
+                        'original'=>$d['original']
+                    ]
+                ];
+                continue;
+            }
+            $fields_choices[$d[$parent_key]][$d['id']] = ['name'=>$d['name'], 'original'=>$d['original']];            
+        }
+        return [$fields_choices, $field_names];    
+    }
+
+    function saveGlobalListChoices($data)
+    {
+        $sql_data = [];
+        foreach ($data as $choices_id => $values) 
+        {
+            if(!$values['name'])
+            {
+                continue;
+            }
+            $sql_data[] = "({$this->language_id}, $choices_id, '".db_input($values['name'])."')";
+        }
+        $query = "INSERT INTO {$this->lingua_global_lists_choices_table} (`language_id`, `choices_id`, `name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
+        db_query($query);
+        $this->saveUpdateTime();
+    }
+
+    function getGlobalListChoices()
+    {
+        $table = $this->lingua_global_lists_choices_table;
+        $partner_table = $this->partner_tables[$table][0];
+        $foreign_key = $this->partner_tables[$table][1];
+        $parent_key = "lists_id";
+        $q = db_query("SELECT le.name, e.id, e.{$parent_key}, e.name AS original FROM {$partner_table} e LEFT JOIN (SELECT name, choices_id  FROM {$table} WHERE language_id={$this->language_id}) le ON (e.id=le.{$foreign_key})");
+        $global_lists_choices = [];
+        while($d = db_fetch_array($q))
+        {
+            if(!isset($global_lists_choices[$d[$parent_key]]))
+            {
+                $global_lists_choices[$d[$parent_key]] = [
+                    $d['id']=>[
+                        'name'=>$d['name'],
+                        'original'=>$d['original']
+                    ]
+                ];
+                continue;
+            }
+            $global_lists_choices[$d[$parent_key]][$d['id']] = ['name'=>$d['name'], 'original'=>$d['original']];            
+        }
+        return $global_lists_choices;    
+    }
+
+    static function replaceFieldChoicesCache(&$fields_choices)
+    {
+        global ${ROOX_PLUGIN.'_language_cache'};
+        foreach (${ROOX_PLUGIN.'_language_cache'}['fields_choices'] as $value) 
+        {
+            if(count($value))
+            {
+                foreach ($value as $k => $v) 
+                {
+                    if($v['name'] && $fields_choices[$k]['name']!=$v['name'])
+                    {
+                        $fields_choices[$k]['name'] = $v['name'];
+                    }
+                }
+            }
+        }
+
+    }
+
+    static function replaceGlobalListCache(&$global_lists_choices)
+    {
+        global ${ROOX_PLUGIN.'_language_cache'};
+        foreach (${ROOX_PLUGIN.'_language_cache'}['global_lists'] as $value) 
+        {
+            if(count($value))
+            {
+                foreach ($value as $k => $v) 
+                {
+                    if($v['name'] && $global_lists_choices[$k]['name']!=$v['name'])
+                    {
+                        $global_lists_choices[$k]['name'] = $v['name'];
+                    }
+                }
+            }
+        }
+
+    }
 
     function saveEntitiesMenu($data)
     {
@@ -113,8 +259,7 @@ class Lingua
             {
                 continue;
             }
-            $name = db_input($values['name']);
-            $sql_data[] = "({$this->language_id}, $menu_id, '{$name}')";
+            $sql_data[] = "({$this->language_id}, $menu_id, '".db_input($values['name'])."')";
         }
         $query = "INSERT INTO {$this->lingua_entities_menu_table} (`language_id`, `entities_menu_id`, `name`) VALUES " . implode(",",$sql_data) . " ON DUPLICATE KEY UPDATE `name`=VALUES(`name`)";
         db_query($query);
@@ -125,7 +270,8 @@ class Lingua
     {
         $table = $this->lingua_entities_menu_table;
         $partner_table = $this->partner_tables[$table][0];
-        $q = db_query("SELECT le.* FROM {$table} le JOIN {$partner_table} e ON (le.entities_menu_id=e.id) WHERE language_id={$this->language_id}");
+        $foreign_key = $this->partner_tables[$table][1];
+        $q = db_query("SELECT le.* FROM {$table} le JOIN {$partner_table} e ON (le.{$foreign_key}=e.id) WHERE language_id={$this->language_id}");
         $return = [];
         if(db_num_rows($q))
         {
@@ -152,8 +298,7 @@ class Lingua
         {
             if($values['name'])
             {
-                $name = db_input($values['name']);
-                $lingua_entities_values[] = "('{$this->language_id}', '$entity_id', '{$name}')";
+                $lingua_entities_values[] = "('{$this->language_id}', '$entity_id', '".db_input($values['name'])."')";
             }
             foreach ($values['cfg'] as $cfg_id => $cfg_value) 
             {
@@ -234,7 +379,7 @@ class Lingua
             if(!$values['name'])
             {
                 continue;
-            }                        
+            }
             $name = db_input($values['name']);
             $description = db_input($values['description']);
             $sql_data[] = "({$this->language_id}, $forms_tabs_id, '{$name}', '{$description}')";
@@ -252,12 +397,15 @@ class Lingua
      */
     function getFormsTabs($entities_ids = [])
     {
+        $table = $this->lingua_forms_tabs_table;
+        $partner_table = $this->partner_tables[$table][0];
+        $foreign_key = $this->partner_tables[$table][1];
         $filter = "";
         if(count($entities_ids))
         {
             $filter = "AND f.entities_id IN (".implode(",", $entities_ids).")";
         }
-        $q = db_query("SELECT lf.*, f.entities_id FROM {$this->lingua_forms_tabs_table} lf JOIN app_forms_tabs f ON (lf.forms_tabs_id=f.id) WHERE language_id={$this->language_id} $filter");
+        $q = db_query("SELECT lf.*, f.entities_id FROM {$table} lf JOIN {$partner_table} f ON (lf.{$foreign_key}=f.id) WHERE language_id={$this->language_id} $filter");
         $return = [];
         if(db_num_rows($q))
         {
@@ -370,6 +518,7 @@ class Lingua
      */
     private function getLanguageCache($token)
     {
+        list($fields_choices, $field_names) = $this->getFieldsChoices();
         return [
             'language' => $this->language_name,
             'token' => $token,
@@ -378,6 +527,9 @@ class Lingua
             'entities_menu' => $this->getEntitiesMenu(),
             'fields' => $this->getFields(),
             'forms_tabs'=>$this->getFormsTabs(),
+            'global_lists'=>$this->getGlobalListChoices(),
+            'fields_choices'=>$fields_choices,
+            'fields_with_choices'=>$field_names,
             'reports'=>self::getReports()
         ];
     }
@@ -389,13 +541,20 @@ class Lingua
      */
     function getEntitiesData()
     {
+        $table = $this->lingua_entities_table;
+        $partner_table = $this->partner_tables[$table][0];
+        $foreign_key = $this->partner_tables[$table][1];
+        $ctable = $this->lingua_entities_configuration_table;
+        $cpartner_table = $this->partner_tables[$ctable][0];
+        $cforeign_key = $this->partner_tables[$ctable][1];
+
         $result = [];
         $q = db_query("SELECT e.id, e.parent_id, e.name, c.id AS cfg_id, 
             c.configuration_name, c.configuration_value, le.name AS language_name, 
-            lc.configuration_value AS language_cfg_value FROM app_entities e 
-            LEFT JOIN app_entities_configuration c ON (e.id=c.entities_id) 
-            LEFT JOIN (SELECT * FROM {$this->lingua_entities_table} WHERE language_id={$this->language_id}) le ON (e.id=le.entities_id) 
-            LEFT JOIN (SELECT * FROM {$this->lingua_entities_configuration_table} WHERE language_id={$this->language_id}) lc ON (c.id=lc.entities_configuration_id);"); 
+            lc.configuration_value AS language_cfg_value FROM {$partner_table} e 
+            LEFT JOIN {$cpartner_table} c ON (e.id=c.{$foreign_key}) 
+            LEFT JOIN (SELECT * FROM {$table} WHERE language_id={$this->language_id}) le ON (e.id=le.{$foreign_key}) 
+            LEFT JOIN (SELECT * FROM {$ctable} WHERE language_id={$this->language_id}) lc ON (c.id=lc.{$cforeign_key});"); 
             
         $default_cfg = [];
         while($d = db_fetch_array($q))
@@ -524,8 +683,7 @@ class Lingua
             {
                 continue;
             }
-            $dict_value = db_input($dict_value);
-            $sql_data[] = "({$this->language_id}, $dict_id, '{$dict_value}')";
+            $sql_data[] = "({$this->language_id}, $dict_id, '".db_input($dict_value)."')";
         }
 
         $fields_query = "INSERT INTO {$this->lingua_dictionary_table} (`language_id`, `dict_id`, `dict_value`) VALUES " . implode(",", $sql_data) . " ON DUPLICATE KEY UPDATE `dict_value`=VALUES(`dict_value`)";
@@ -570,11 +728,11 @@ class Lingua
     
         if($app_user['group_id'] == 0)
         {
-            $entities_query = db_query("select * from app_entities e where (e.parent_id = 0 or e.display_in_menu=1) {$where_sql} order by e.sort_order, e.name");
+            $entities_query = db_query("SELECT * FROM app_entities e WHERE (e.parent_id = 0 or e.display_in_menu=1) {$where_sql} ORDER BY e.sort_order, e.name");
         }
         else
         {
-            $entities_query = db_query("select e.* from app_entities e, app_entities_access ea where e.id=ea.entities_id and length(ea.access_schema)>0 and ea.access_groups_id='" . db_input($app_user['group_id']) . "' and (e.parent_id = 0 or display_in_menu=1) {$where_sql} order by e.sort_order, e.name");
+            $entities_query = db_query("SELECT e.* FROM app_entities e, app_entities_access ea WHERE e.id=ea.entities_id AND LENGTH(ea.access_schema)>0 AND ea.access_groups_id='" . db_input($app_user['group_id']) . "' AND (e.parent_id = 0 or display_in_menu=1) {$where_sql} ORDER BY e.sort_order, e.name");
         }
     
         while($entities = db_fetch_array($entities_query))
@@ -645,11 +803,11 @@ class Lingua
     
                 if($app_user['group_id'] == 0)
                 {
-                    $entities_query = db_query("select * from app_entities e where e.id in (" . $entities_menu['entities_list'] . ") order by field(e.id," . $entities_menu['entities_list'] . ")");
+                    $entities_query = db_query("SELECT * FROM app_entities e WHERE e.id IN (" . $entities_menu['entities_list'] . ") ORDER BY field(e.id," . $entities_menu['entities_list'] . ")");
                 }
                 else
                 {
-                    $entities_query = db_query("select e.* from app_entities e, app_entities_access ea where e.id=ea.entities_id and length(ea.access_schema)>0 and ea.access_groups_id='" . db_input($app_user['group_id']) . "' and e.id in (" . $entities_menu['entities_list'] . ") order by field(e.id," . $entities_menu['entities_list'] . ")");
+                    $entities_query = db_query("SELECT e.* FROM app_entities e, app_entities_access ea WHERE e.id=ea.entities_id AND LENGTH(ea.access_schema)>0 AND ea.access_groups_id='" . db_input($app_user['group_id']) . "' AND e.id in (" . $entities_menu['entities_list'] . ") ORDER BY field(e.id," . $entities_menu['entities_list'] . ")");
                 }
     
                 while($entities = db_fetch_array($entities_query))
@@ -721,7 +879,7 @@ class Lingua
     
             $sub_menu = self::buildCustomEntitiesMenu($sub_menu, $entities_menu['id'], $level + 1);
     
-            $nested_query = db_query("select id from app_entities_menu where parent_id='" . $entities_menu['id'] . "' limit 1");
+            $nested_query = db_query("SELECT id FROM app_entities_menu WHERE parent_id='" . $entities_menu['id'] . "' limit 1");
             $has_nested = db_fetch_array($nested_query);
     
             if(count($sub_menu) == 1 and !$has_nested)

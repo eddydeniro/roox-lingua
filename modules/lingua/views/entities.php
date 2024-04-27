@@ -1,13 +1,5 @@
 <?php
     require component_path(ROOX_PLUGIN . "/{$module_name}/header"); 
-?>
-
-<!-- <h4><?php echo TEXT_HEADING_ENTITY_CONFIGURATION ?></h4> -->
-<!-- <p></p> -->
-<!-- <br> -->
-
-<?php
-    $locked = CFG_APP_LANGUAGE == $app_user['language'] ? true : false;
     echo ($locked ? TEXT_CANNOT_TRANSLATE : form_tag('language_entities_form', url_for("{$plugin_name}/{$module_name}/entities", 'action=save')) . submit_tag(TEXT_BUTTON_SAVE));
 ?>
 <div class="table-scrollable">

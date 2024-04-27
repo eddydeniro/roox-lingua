@@ -6,6 +6,8 @@
         $module_name . '_entities_menu', 
         $module_name . '_entities_configuration', 
         $module_name . '_forms_tabs', 
+        $module_name . '_global_lists_choices',
+        $module_name . '_fields_choices',
         $module_name . '_dictionary'
     ];
 
