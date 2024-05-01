@@ -171,6 +171,19 @@ $(document).ready(function(){
                             $('.field-' + field_id + '-th').html('<div>'+(field_data[field_id].short_name ? field_data[field_id].short_name : field_data[field_id].name)+'</div>');
                         }        
                     }
+                    //Observe the node change caused by filters
+                    var targetNode = $('.entity_items_listing')[0];
+                    var config = { attributes: true, childList: true };
+                    var callback = function(){
+                        console.log('TABLE CHANGED!')
+                        for (const field_id in field_data){
+                            if(field_data[field_id].name && field_data[field_id].original_name){
+                                $('.field-' + field_id + '-th').html('<div>'+(field_data[field_id].short_name ? field_data[field_id].short_name : field_data[field_id].name)+'</div>');
+                            }        
+                        }
+                    }
+                    var observer = new MutationObserver(callback);
+                    observer.observe(targetNode, config);                    
                 });    
             }
             if(params.module=='items/info'){
