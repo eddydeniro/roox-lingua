@@ -63,10 +63,11 @@ $(document).ready(function(){
     {
         const entities_data = language_data['entities'];
         const current_entity_data = entities_data[_entity_id];
-
         for (const entity_id in entities_data) {
-            const item = entities_data[entity_id]['name'];
-            $('a.navbar-nav-entity-' + _entity_id).text(item);
+            if($('a.navbar-nav-entity-' + entity_id).length){
+                const item = entities_data[entity_id]['name'];
+                $('a.navbar-nav-entity-' + entity_id).text(item);
+            }
         }
         if(params.module=='items/items' || params.module=='items/' || params.module=='items/info' || params.module=='reports/view'){
             $('title').text($('title').text().replace(entities_data[_entity_id]['listing_heading']['original'], entities_data[_entity_id]['listing_heading']['value']));
@@ -101,8 +102,11 @@ $(document).ready(function(){
                         const input_choices = dropdown_fields[field_id];
                         for (const choices_id in input_choices) {
                             const selector1 = '#fields_'+field_id;
-                            const option_text = $(selector1+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);
-                            $(selector1+' option[value='+choices_id+']').text(option_text);
+                            if(input_choices[choices_id]['name']){
+                                const option_text = $(selector1+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);                            
+                                $(selector1+' option[value='+choices_id+']').text(option_text);
+                            }
+
                             if($(selector1).hasClass('chosen-select'))
                             {
                                 $(selector1).trigger('chosen:updated');
@@ -121,27 +125,33 @@ $(document).ready(function(){
                             }
                             const selector2 = '#fields_'+field_id+'_0';
                             if($(selector2).length){
-                                const option_text2 = $(selector2+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);
-                                $(selector2+' option[value='+choices_id+']').text(option_text2);
+                                if(input_choices[choices_id]['name']){
+                                    const option_text2 = $(selector2+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);
+                                    $(selector2+' option[value='+choices_id+']').text(option_text2);                                
+                                }
                                 $(selector2).change(function(){
                                     const current_id = field_id;
                                     const current_choices = choices_id;
                                     const s = '#fields_'+current_id+'_1';
-                                    const t = $(s+' option[value='+current_choices+']').text().replace(input_choices[current_choices]['original'], input_choices[current_choices]['name']);
-                                    $(s+' option[value='+current_choices+']').text(t);
+                                    if(input_choices[current_choices]['name']){
+                                        const t = $(s+' option[value='+current_choices+']').text().replace(input_choices[current_choices]['original'], input_choices[current_choices]['name']);
+                                        $(s+' option[value='+current_choices+']').text(t);
+                                    }
                                 })
                             }
                             const selector3 = '#fields_'+field_id+'_1';
                             if($(selector3).length){
-                                const option_text3 = $(selector3+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);
-                                $(selector3+' option[value='+choices_id+']').text(option_text3);
+                                if(input_choices[choices_id]['name']){
+                                    const option_text3 = $(selector3+' option[value='+choices_id+']').text().replace(input_choices[choices_id]['original'], input_choices[choices_id]['name']);
+                                    $(selector3+' option[value='+choices_id+']').text(option_text3);
+                                }
                             }
                             const selector4 = '#uniform-fields_'+field_id+'_'+choices_id;
                             if($(selector4).length)
                             {
                                 $(selector4).parent().contents().filter(function(){
                                     return this.nodeType===3;
-                                })[0].nodeValue = ' ' + input_choices[choices_id]['name'];
+                                })[0].nodeValue = ' ' + (input_choices[choices_id]['name'] ? input_choices[choices_id]['name'] : input_choices[choices_id]['original']);
 
                             }
                             
@@ -182,8 +192,8 @@ $(document).ready(function(){
                         }
                     }
                     const observer = new MutationObserver(callback);
-                    observer.observe(targetNode, config);                    
-                });    
+                    observer.observe(targetNode, config);
+                });  
             }
             if(params.module=='items/info'){
                 $('div.navbar-header > a.navbar-brand').text(entities_data[_entity_id]['window_heading']['value']);
@@ -221,7 +231,6 @@ $(document).ready(function(){
                 }, delay);                
             }
         }
-
     }
 })
 </script>
